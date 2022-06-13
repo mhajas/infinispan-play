@@ -12,6 +12,7 @@ import fax.play.model3.Schema3F;
 import fax.play.model3.Schema3G;
 import fax.play.model3.Schema3H;
 import fax.play.model3.Schema3I;
+import fax.play.model3.Schema3J;
 import fax.play.service.CacheDefinition;
 import fax.play.service.CacheProvider;
 import fax.play.service.Model;
@@ -282,6 +283,33 @@ public class BasicsForNoDowntimeUpgradesTest {
 
         ModelUtils.createModel1Entities(cache, 5, ModelUtils.createModelF(3));
         doQuery("FROM Model3 WHERE nameIndexed : '*3*'", cache, 3);
+    }
+
+    @Test
+    void testMigrateOldAnnotationToNewOne() {
+        // VERSION 1
+        RemoteCache<String, Model> cache = cacheProvider
+                .init(new CacheDefinition(CACHE1_NAME, "Model3"), Schema3B.INSTANCE)
+                .getCache(CACHE1_NAME);
+
+        // Create VERSION 1 entities
+        ModelUtils.createModel1Entities(cache, 5, ModelUtils.createModelB(1));
+
+        // VERSION 1 uses name in a query
+        doQuery("FROM Model3 WHERE name LIKE '%3%'", cache, 1);
+
+        // VERSION 2
+        cache = cacheProvider
+                .updateSchemaAndGet(Schema3J.INSTANCE)
+                .getCache(CACHE1_NAME);
+
+        // No update/reindexing needed as Model3B and Model3J should be equivalent
+
+        // Create entities without index
+        ModelUtils.createModel1Entities(cache, 5, ModelUtils.createModelJ(2));
+
+        // Try query with field that has the index in both versions
+        doQuery("FROM Model3 WHERE name LIKE '%3%'", cache, 2);
     }
 
     private <T> void doQuery(String query, RemoteCache<String, T> messageCache, int expectedResults) {

@@ -1,6 +1,7 @@
 package fax.play.model3;
 
 import fax.play.service.Model;
+import org.infinispan.api.annotations.indexing.Basic;
 import org.infinispan.api.annotations.indexing.Keyword;
 import org.infinispan.protostream.annotations.ProtoDoc;
 import org.infinispan.protostream.annotations.ProtoField;
@@ -11,7 +12,7 @@ import org.infinispan.protostream.annotations.ProtoName;
 public class Model3E implements Model {
 
     @ProtoField(number = 1)
-    @ProtoDoc("@Field(index = Index.YES, store = Store.YES)")
+    @Basic(projectable = true)
     public Integer entityVersion;
 
     @ProtoField(number = 2)

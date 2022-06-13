@@ -8,7 +8,7 @@ import org.infinispan.protostream.annotations.ProtoName;
 
 @ProtoDoc("@Indexed")
 @ProtoName("Model3")
-public class Model3F implements Model {
+public class Model3J implements Model {
 
     @ProtoField(number = 1)
     @Basic(projectable = true)
@@ -16,6 +16,10 @@ public class Model3F implements Model {
 
     @ProtoField(number = 2)
     public String id;
+
+    @ProtoField(number = 3)
+    @Basic(projectable = true)
+    public String name;
 
     @ProtoField(number = 4)
     @ProtoDoc("@Field(index = Index.YES, store = Store.YES, analyze = Analyze.YES, analyzer = @Analyzer(definition = \"lowercase\"))")
