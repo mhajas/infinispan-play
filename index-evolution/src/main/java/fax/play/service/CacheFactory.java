@@ -22,7 +22,7 @@ public class CacheFactory {
       return new RemoteCacheManager(builder.build());
    }
 
-   public static RemoteCacheManager create(CacheDefinition cacheDefinition, GeneratedSchema ... schemas) {
+   public static RemoteCacheManager create(CacheDefinition cacheDefinition, ProtoStreamMarshaller marshaller, GeneratedSchema ... schemas) {
       ConfigurationBuilder builder = new ConfigurationBuilder();
       builder.addServer().host("127.0.0.1").port(ConfigurationProperties.DEFAULT_HOTROD_PORT)
             .security()
@@ -33,15 +33,16 @@ public class CacheFactory {
       if (cacheDefinition != null) {
          builder.remoteCache(cacheDefinition.getName())
                .configuration(cacheDefinition.getConfiguration())
-               .marshaller(ProtoStreamMarshaller.class);
+               .marshaller(marshaller);
       }
+      RemoteCacheManager remoteCacheManager = new RemoteCacheManager(builder.build());
 
       for (GeneratedSchema schema : schemas) {
-         // Add marshaller in the client
-         builder.addContextInitializer(schema);
+         // Register proto schema && entity marshaller on client side
+         schema.registerSchema(marshaller.getSerializationContext());
+         schema.registerMarshallers(marshaller.getSerializationContext());
       }
 
-      RemoteCacheManager remoteCacheManager = new RemoteCacheManager(builder.build());
 
       for (GeneratedSchema schema : schemas) {
          // Register proto schema on server side

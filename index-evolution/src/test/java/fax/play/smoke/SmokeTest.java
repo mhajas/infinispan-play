@@ -45,9 +45,7 @@ public class SmokeTest {
       assertThat(result).extracting("oldName").containsExactly("Fabio");
       assertThat(result).hasOnlyElementsOfType(Model1A.class);
 
-      cache = cacheProvider
-            .updateSchemaAndGet(Schema1B.INSTANCE)
-            .getCache(CacheProvider.CACHE1_NAME);
+      cacheProvider.updateSchema(cache, Schema1B.INSTANCE);
 
       cache.put("2", new Model1B("Alessia", "Alessia"));
 
@@ -70,7 +68,7 @@ public class SmokeTest {
             .hasMessageContaining("Unknown field 'newName");
 
       RemoteCacheManager cacheManager = cacheProvider
-            .updateSchemaAndGet(new CacheDefinition(CacheProvider.CACHE2_NAME, "Model2"), Schema1B.INSTANCE, Schema2A.INSTANCE);
+            .updateSchema(new CacheDefinition(CacheProvider.CACHE2_NAME, "Model2"), Schema1B.INSTANCE, Schema2A.INSTANCE);
 
       cache = cacheManager.getCache(CacheProvider.CACHE1_NAME);
       RemoteCache<String, Model> cache2 = cacheManager.getCache(CacheProvider.CACHE2_NAME);

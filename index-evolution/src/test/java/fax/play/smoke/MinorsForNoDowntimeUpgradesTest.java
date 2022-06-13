@@ -57,8 +57,8 @@ public class MinorsForNoDowntimeUpgradesTest {
         // Check there is only one with 3 in name field (Query that doesn't use index)
         doQuery("FROM Model3 WHERE name LIKE '%3%'", cache, 1);
 
-        cache = cacheProvider.updateSchemaAndGet(Schema3B.INSTANCE)
-                .getCache(CACHE1_NAME);
+        cacheProvider.updateSchema(cache, Schema3B.INSTANCE);
+
 
         // TODO: No index schema update nor reindex needed, is it correct?
         //  Can I somehow check whether Infinispan used the index or not?
@@ -88,8 +88,8 @@ public class MinorsForNoDowntimeUpgradesTest {
         // VERSION 2
         // Note: this version needs to be backward compatible with the old version
         // Update to second schema
-        cache = cacheProvider.updateSchemaAndGet(Schema3D.INSTANCE)
-                .getCache(CACHE1_NAME);
+        cacheProvider.updateSchema(cache, Schema3D.INSTANCE);
+
 
         // Index schema needs to be updated
         cacheProvider.updateIndexSchema(CACHE1_NAME);
@@ -118,8 +118,8 @@ public class MinorsForNoDowntimeUpgradesTest {
 
         // VERSION 4
         // Now we can remove deprecated name field
-        cache = cacheProvider.updateSchemaAndGet(Schema3F.INSTANCE)
-                .getCache(CACHE1_NAME);
+        cacheProvider.updateSchema(cache, Schema3F.INSTANCE);
+
 
         // Create VERSION 4 entities, entity V4 can't contain name field because ModelF doesn't contain it
         // in other words, migrating all entities to V4 removes name field from all entities, but it is not necessary
@@ -145,9 +145,7 @@ public class MinorsForNoDowntimeUpgradesTest {
         doQuery("FROM Model3 WHERE name LIKE '%3%'", cache, 1);
 
         // Update schema to not include index on name
-        cache = cacheProvider
-                .updateSchemaAndGet(Schema3A.INSTANCE)
-                .getCache(CACHE1_NAME);
+        cacheProvider.updateSchema(cache, Schema3A.INSTANCE);
 
         // update index schema
         cacheProvider.updateIndexSchema(CACHE1_NAME);

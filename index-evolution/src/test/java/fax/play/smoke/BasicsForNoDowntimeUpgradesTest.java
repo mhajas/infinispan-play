@@ -65,8 +65,8 @@ public class BasicsForNoDowntimeUpgradesTest {
 
 
         // VERSION 2
-        cache = cacheProvider.updateSchemaAndGet(Schema3E.INSTANCE)
-                .getCache(CACHE1_NAME);
+        cacheProvider.updateSchema(cache, Schema3E.INSTANCE);
+
 
         cacheProvider.updateIndexSchema(CACHE1_NAME);
 
@@ -108,8 +108,7 @@ public class BasicsForNoDowntimeUpgradesTest {
         // VERSION 2 - note in this version we are NOT able to use the functionality that for the reason for adding index
         // Update to second schema that adds nameIndexed field
         CacheProvider cacheProviderV2 = new CacheProvider();
-        RemoteCache<String, Model> cacheV2 = cacheProviderV2.updateSchemaAndGet(Schema3D.INSTANCE)
-                .getCache(CACHE1_NAME);
+        cacheProviderV2.updateSchema(cache, Schema3D.INSTANCE);
 
         // Index schema needs to be updated (this is done with no-downtime)
         cacheProvider.updateIndexSchema(CACHE1_NAME);
@@ -117,13 +116,13 @@ public class BasicsForNoDowntimeUpgradesTest {
         // Create VERSION 2 entities
         // Entities created in this version needs to have both name and nameIndexed fields so that VERSION 1 is able to read
         // these entities
-        ModelUtils.createModel1Entities(cacheV2, 5, ModelUtils.createModelD(2));
+        ModelUtils.createModel1Entities(cache, 5, ModelUtils.createModelD(2));
 
         // This is just to check data were created correctly, VERSION 2 doesn't use name nor nameIndexed in any query
         // non-indexed field name should be set on both version new and old
-        doQuery("FROM Model3 WHERE name LIKE '%3%'", cacheV2, 2);
+        doQuery("FROM Model3 WHERE name LIKE '%3%'", cache, 2);
         // indexed field nameIndexed should be present only in entities created by VERSION 2 as no reindexing was done yet
-        doQuery("FROM Model3 WHERE nameIndexed : '*3*'", cacheV2, 1);
+        doQuery("FROM Model3 WHERE nameIndexed : '*3*'", cache, 1);
 
         // In this state we can ask administrator to perform update of all entities to VERSION 2 before migrating to VERSION 3
         // The advantage of this approach is:
@@ -133,8 +132,7 @@ public class BasicsForNoDowntimeUpgradesTest {
 
         // VERSION 3 - note from this version we are able to use the functionality that was the reason for adding the index
         // Update schema to version without name field
-        cache = cacheProvider.updateSchemaAndGet(Schema3F.INSTANCE)
-                .getCache(CACHE1_NAME);
+        cacheProvider.updateSchema(cache, Schema3F.INSTANCE);
 
         // Create VERSION 3 entities, entity V3 can't contain name field because ModelF doesn't contain it
         // in other words, migrating all entities to V3 removes name field from all entities
@@ -142,7 +140,7 @@ public class BasicsForNoDowntimeUpgradesTest {
         ModelUtils.createModel1Entities(cache, 5, ModelUtils.createModelF(3));
 
         // It is possible there is an older VERSION 2 node writing/reading to/from the cache, it should work
-        ModelUtils.createModel1Entities(cacheV2, 5, i -> ModelUtils.createModelD(2).apply(i + 10)); // Creating entities with ids +10 offset
+        ModelUtils.createModel1Entities(cache, 5, i -> ModelUtils.createModelD(2).apply(i + 10)); // Creating entities with ids +10 offset
 
         // This is to check that older version is correctly writing also deprecated name field even though current
         // schema present in the Infinispan server doesn't contain it
@@ -184,9 +182,7 @@ public class BasicsForNoDowntimeUpgradesTest {
         // Update schema to not include index on name
         // Note: If the reason for removal is removal of field completely, the process would be the same with the difference,
         //  that this schema does not contain the field
-        cache = cacheProvider
-                .updateSchemaAndGet(Schema3A.INSTANCE)
-                .getCache(CACHE1_NAME);
+        cacheProvider.updateSchema(cache, Schema3A.INSTANCE);
 
         // update index schema
         cacheProvider.updateIndexSchema(CACHE1_NAME);
@@ -211,9 +207,7 @@ public class BasicsForNoDowntimeUpgradesTest {
         doQuery("FROM Model3 WHERE name : '*3*'", cache, 1);
 
         // Update schema to VERSION 2 that contains both analyzed and non-analyzed field
-        cache = cacheProvider
-                .updateSchemaAndGet(Schema3G.INSTANCE)
-                .getCache(CACHE1_NAME);
+        cacheProvider.updateSchema(cache, Schema3G.INSTANCE);
 
         // update index schema
         cacheProvider.updateIndexSchema(CACHE1_NAME);
@@ -234,9 +228,8 @@ public class BasicsForNoDowntimeUpgradesTest {
 
         // VERSION 4
         // Now we can remove deprecated name field
-        cache = cacheProvider
-                .updateSchemaAndGet(Schema3H.INSTANCE)
-                .getCache(CACHE1_NAME);
+        cacheProvider.updateSchema(cache, Schema3H.INSTANCE);
+
 
         ModelUtils.createModel1Entities(cache, 5, ModelUtils.createModelH(3));
         doQuery("FROM Model3 WHERE nameNonAnalyzed LIKE '%3%'", cache, 3);
@@ -254,9 +247,7 @@ public class BasicsForNoDowntimeUpgradesTest {
         doQuery("FROM Model3 WHERE name LIKE '%3%'", cache, 1);
 
         // Update schema to VERSION 2 that contains both non-analyzed and analyzed field
-        cache = cacheProvider
-                .updateSchemaAndGet(Schema3I.INSTANCE)
-                .getCache(CACHE1_NAME);
+        cacheProvider.updateSchema(cache, Schema3I.INSTANCE);
 
         // update index schema
         cacheProvider.updateIndexSchema(CACHE1_NAME);
@@ -277,9 +268,7 @@ public class BasicsForNoDowntimeUpgradesTest {
 
         // VERSION 4
         // Now we can remove deprecated name field
-        cache = cacheProvider
-                .updateSchemaAndGet(Schema3F.INSTANCE)
-                .getCache(CACHE1_NAME);
+        cacheProvider.updateSchema(cache, Schema3F.INSTANCE);
 
         ModelUtils.createModel1Entities(cache, 5, ModelUtils.createModelF(3));
         doQuery("FROM Model3 WHERE nameIndexed : '*3*'", cache, 3);
@@ -299,9 +288,7 @@ public class BasicsForNoDowntimeUpgradesTest {
         doQuery("FROM Model3 WHERE name LIKE '%3%'", cache, 1);
 
         // VERSION 2
-        cache = cacheProvider
-                .updateSchemaAndGet(Schema3J.INSTANCE)
-                .getCache(CACHE1_NAME);
+        cacheProvider.updateSchema(cache, Schema3J.INSTANCE);
 
         // No update/reindexing needed as Model3B and Model3J should be equivalent
 
